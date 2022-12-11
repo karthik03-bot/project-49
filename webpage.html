@@ -1,0 +1,321 @@
+                                                
+                                                <!-- this script is provided by www.htmlbestcodes.com coded by: Kerixa Inc. -->
+<!-- this script got from www.htmlbestcodes.com-Coded by: Krishna Eydat -->
+<html>
+<head>
+<title>Javascript Animation demo: Expand DIV to full-screen (+Sound)</title>
+<style type="text/css">
+
+.example-box {
+ position:absolute;
+ left:0px;
+ top:0px;
+ width:32px;
+ height:32px;
+ background:#6699cc;
+ text-align:center;
+ font-family:"Helvetica neue",helvetica,tahoma,verdana,arial,sans-serif;
+ font-size:1px;
+ line-height:100%;
+ color:#fff;
+ overflow:hidden;
+ white-space:nowrap;
+}
+
+a,
+a:visited {
+ color:#fff;
+}
+
+a:hover {
+ background:#336699;
+ color:#fff;
+}
+
+
+</style>
+</head>
+
+<body>
+
+	<div>
+
+	 <h1>Javascript animation demo</h1>
+
+	 <div id="box" class="example-box">
+	    <p><a href="#again" onclick="redoAnimationDemo();return false">Again, dammit!</a></p>
+	 </div>
+
+	</div>
+<script type="text/javascript">
+writeDebug = (typeof console != 'undefined' && console.log && window.location.href.match(/debug=1/i))?function(sDebug) {
+  // use #debug=1 etc. in URL to enable debug output for console.log()-supported shiz
+  console.log(sDebug);
+}:function() {
+  // oh well
+}
+
+function Animator() {
+  var self = this;
+  var intervalRate = 20;
+  this.tweenTypes = {
+    'default': [1,2,3,4,5,6,7,8,9,10,9,8,7,6,5,4,3,2,1],
+    'blast': [12,12,11,10,10,9,8,7,6,5,4,3,2,1],
+    'linear': [10,10,10,10,10,10,10,10,10,10]
+  }
+  this.queue = [];
+  this.queueHash = [];
+  this.active = false;
+  this.timer = null;
+  this.createTween = function(start,end,type) {
+    // return array of tween coordinate data (start->end)
+    type = type||'default';
+    var tween = [start];
+    var tmp = start;
+    var diff = end-start;
+    var x = self.tweenTypes[type].length;
+    for (var i=0; i<x; i++) {
+      tmp += diff*self.tweenTypes[type][i]*0.01;
+      tween[i] = {};
+      tween[i].data = tmp;
+      tween[i].event = null;
+    }
+    return tween;
+  }
+
+  this.enqueue = function(o,fMethod,fOnComplete) {
+    // add object and associated methods to animation queue
+    writeDebug('animator.enqueue()');
+    if (!fMethod) {
+      writeDebug('animator.enqueue(): missing fMethod');
+    }
+
+    self.queue.push(o);
+    o.active = true;
+  }
+
+  this.animate = function() {
+    var active = 0;
+    for (var i=0,j=self.queue.length; i<j; i++) {
+      if (self.queue[i].active) {
+        self.queue[i].animate();
+        active++;
+      }
+    }
+    if (active == 0 && self.timer) {
+      // all animations finished
+      writeDebug('Animations complete');
+      self.stop();
+    } else {
+      // writeDebug(active+' active');
+    }
+  }
+
+  this.start = function() {
+    if (self.timer || self.active) {
+      writeDebug('animator.start(): already active');
+      return false;
+    }
+    writeDebug('animator.start()'); // report only if started
+    self.active = true;
+    self.timer = setInterval(self.animate,intervalRate);
+  }
+
+  this.stop = function() {
+    writeDebug('animator.stop()',true);
+    // reset some things, clear for next batch of animations
+    clearInterval(self.timer);
+    self.timer = null;
+    self.active = false;
+    self.queue = [];
+  }
+
+}
+
+var animator = new Animator();
+
+function Animation(oParams) {
+  // unique animation object
+  /*
+    oParams = {
+      from: 200,
+      to: 300,
+      tweenType: 'default',
+      ontween: function(value) { ... }, // method called each time
+      oncomplete: function() { ... } // when finished
+    }
+  */
+  var self = this;
+  if (typeof oParams.tweenType == 'undefined') {
+    oParams.tweenType = 'default';
+  }
+  this.ontween = (oParams.ontween||null);
+  this.oncomplete = (oParams.oncomplete||null);
+  this.tween = animator.createTween(oParams.from,oParams.to,oParams.tweenType);
+  this.frameCount = animator.tweenTypes[oParams.tweenType].length;
+  this.frame = 0;
+  this.active = false;
+
+  this.animate = function() {
+    // generic animation method
+    if (self.active) {
+      if (self.ontween && self.tween[self.frame]) {
+        self.ontween(self.tween[self.frame].data);
+      }
+      if (self.frame++ >= self.frameCount-1) {
+        writeDebug('animation(): end');
+        self.active = false;
+        self.frame = 0;
+        if (self.oncomplete) {
+          self.oncomplete();
+          // self.oncomplete = null;
+        }
+        return false;
+      }
+      return true;
+    }
+    return false;
+  }
+
+  this.start = function() {
+    // add this to the main animation queue
+    animator.enqueue(self,self.animate,self.oncomplete);
+    if (!animator.active) {
+      animator.start();
+    }
+  }
+
+  this.stop = function() {
+    self.active = false;
+  }
+  
+}
+</script>
+<script type="text/javascript">
+// some demo tings
+
+function getWindowCoords() {
+  if (window.innerWidth || window.innerHeight) {
+    return [window.innerWidth,window.innerHeight];
+  } else {
+    return [(document.documentElement.clientWidth||document.body.clientWidth||document.body.scrollWidth),(document.documentElement.clientHeight||document.body.clientHeight||document.body.scrollHeight)];
+  }
+}
+
+function animationDemo() {
+
+	// DOM/coordinate references
+
+	var winXY = getWindowCoords();
+	var oBox = document.getElementById('box');
+	var oBoxWidth = parseInt(oBox.offsetWidth);
+
+	// generic tween functions
+
+	function tweenLeftPX(o,value) {
+	  o.style.marginLeft = value+'px';
+	}
+
+	function tweenTopPX(o,value) {
+	  o.style.marginTop = value+'px';
+	}
+
+	function tweenLeftPercent(o,value) {
+	  o.style.left = value+'%';
+	  var offset = parseInt(oBoxWidth/2);
+	  o.style.marginLeft = '0px';
+	}
+
+	function tweenTopPercent(o,value) {
+	  o.style.top = value+'%';
+	}
+
+	function tweenWidthPercent(o,value) {
+	  o.style.width = parseInt(winXY[0]*value/100)+'px';
+	}
+
+	function tweenHeightPercent(o,value) {
+	  o.style.height = parseInt(winXY[1]*value/100)+'px';
+	}
+
+	// move box to middle of the screen
+
+	var a = new Animation({
+	  from: 0,
+	  to: 50,
+	  tweenType: 'blast',
+	  ontween: function(value){
+	    tweenLeftPercent(oBox,value);
+	    oBox.style.marginLeft = -parseInt(oBox.offsetWidth/2)+'px';
+	  },
+	  oncomplete: function() {
+	    writeDebug('a.oncomplete()');
+	  }
+	});
+
+	var a2 = new Animation({
+	  from: 0,
+	  to: 50,
+	  ontween: function(value){
+	    tweenTopPercent(oBox,value);
+	  },
+	  oncomplete: function() {
+	    fs[0].start();
+	    fs[1].start();
+	  }
+	});
+
+	// "full-screen" animation
+
+	var fs = [
+	  new Animation({
+	    from: 50,
+	    to: 0,
+	    tweenType: 'blast',
+	    ontween: function(value) {
+	      tweenLeftPercent(oBox,value);
+	      tweenTopPercent(oBox,value);
+	    }
+	  }),
+	  new Animation({
+	    from: 1,
+	    to: 100,
+	    tweenType: 'blast',
+	    ontween: function(value) {
+	      tweenWidthPercent(oBox,value);
+	      tweenHeightPercent(oBox,value);
+	      oBox.style.fontSize = parseInt(14*value/100)+'px';
+	      // oBox.style.lineHeight = parseInt(winXY[1]*value/100)+'px';
+	    },
+	    oncomplete: function() {
+	      oBox.style.left = '0px';
+	      oBox.style.top = '0px';
+	      oBox.style.width = '100%';
+	      oBox.style.height = '100%';
+	    }
+	  })
+	];
+
+	// start ze animations
+
+	a.start();
+	a2.start();
+
+}
+
+function redoAnimationDemo() {
+	var o = document.getElementById('box');
+	o.style.width = '32px';
+	o.style.height = '32px';
+	o.style.left = '0px';
+	o.style.top = '0px';
+	o.style.fontSize = '1px';
+	animationDemo();
+}
+
+redoAnimationDemo();
+</script>
+<div><a target="_blank" href="http://www.htmlbestcodes.com/"><span style="font-size: 8pt; text-decoration: none">HTML Best Codes</span></a></div>
+</body>
+</html><a target='_blank' href='www.htmlbestcodes.com' style='font-size: 8pt; text-decoration: none'>Html Best Codes</a>                                                
+                                            
