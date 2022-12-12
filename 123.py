@@ -16,3 +16,9 @@ print(np.size(A)) # shape() function is used to determine no.of (rows,columns)
 print(np.shape(A)) # size() function is used to determine size of the array 
 print(np.ndim(A)) # ndim() command is used for determine dimension of the array 
 print(np.ravel(B)) # this ravel command is used for arranging the elements of array in order
+a= np.matrix('1 2 3; 4 5 6; 7 8 9')  #this is the creation of matrix
+print(a) #this is pritnting of matrix
+d= np.diagonal(a) #this is the creation of diagnol elements 
+print(d) #this is the priting them
+
+
