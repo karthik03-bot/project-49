@@ -1,6 +1,0 @@
-#important libraries to be imported when we are running experiments or calling any compute_target or workspace.
-
-import azureml.core 
-from azureml.core import Workspace,Environment,script run config
-from azureml.core.compute import amlcomputre,compute target
-from azureml.core.compute_target import compute target
