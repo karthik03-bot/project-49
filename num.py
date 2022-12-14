@@ -20,5 +20,7 @@ a= np.matrix('1 2 3; 4 5 6; 7 8 9')  #this is the creation of matrix
 print(a) #this is pritnting of matrix
 d= np.diagonal(a) #this is the creation of diagnol elements 
 print(d) #this is the priting them
-
+print(np.arcos(a)) #calculate cos inverse value of each element in array
+print(np.arsin(a)) #calculate sin inverse value of each element in array
+print(np.abs(a)) #gives absloute value of each element
 
