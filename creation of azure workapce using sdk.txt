@@ -1,8 +1,0 @@
-creation of azure workspace using sdk:
-
-from azurem.core import workspace
-ws = workspace.create(name ='',
-subscription_id='',
-resouce_group='',
-create_resource gropu = true,
-location = '',)
