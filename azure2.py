@@ -79,5 +79,13 @@ import os
 # to access the experiment run context
 run = Run.get_context()
 
+#Use the same workspace in multiple environments by first writing it to a configuration JSON file. 
+# This saves your subscription, resource, and workspace name data.
+from azureml.core import workspace
+ws.write_config(path="./file-path", file_name="ws_config.json")
+
+#(or) Load your workspace by reading the configuration file.
+from azureml.core import workspace
+ws_other_environment = Workspace.from_config(path="./file-path/ws_config.json")
 
 
